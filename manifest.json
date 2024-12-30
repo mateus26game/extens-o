@@ -1,0 +1,24 @@
+
+{
+  "manifest_version": 3,
+  "name": "Transcrição de Áudio",
+  "version": "1.0",
+  "description": "Transcreve áudio de vídeos em tempo real",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabCapture"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
