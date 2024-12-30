@@ -5,15 +5,8 @@
   <meta charset="UTF-8">
   <style>
     body {
-      width: 400px;
+      width: 200px;
       padding: 10px;
-    }
-    #transcricao {
-      min-height: 200px;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin: 10px 0;
-      white-space: pre-wrap;
     }
     .controls {
       display: flex;
@@ -22,16 +15,15 @@
     button {
       padding: 8px 16px;
       cursor: pointer;
+      flex: 1;
     }
   </style>
 </head>
 <body>
-  <h2>Transcrição em Tempo Real</h2>
   <div class="controls">
-    <button id="iniciar">Iniciar Transcrição</button>
+    <button id="iniciar">Iniciar Legendas</button>
     <button id="parar">Parar</button>
   </div>
-  <div id="transcricao"></div>
   <script src="popup.js"></script>
 </body>
 </html>
