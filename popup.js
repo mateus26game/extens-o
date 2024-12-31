@@ -1,21 +1,20 @@
 
-document.addEventListener('DOMContentLoaded', function() {
-  const iniciarBtn = document.getElementById('iniciar');
-  const pararBtn = document.getElementById('parar');
+const controls = ['textColor', 'fontSize', 'bgColor', 'bgOpacity'];
 
-  iniciarBtn.addEventListener('click', () => {
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        action: "iniciarTranscricao"
-      });
+controls.forEach(control => {
+  document.getElementById(control).addEventListener('change', async (e) => {
+    const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'updateStyle',
+      control: control,
+      value: e.target.value
     });
   });
+});
 
-  pararBtn.addEventListener('click', () => {
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        action: "pararTranscricao"
-      });
-    });
-  });
+// Atualiza o h1 quando receber nova legenda
+chrome.runtime.onMessage.addListener((request) => {
+  if (request.action === 'updateCaptionText' && request.text) {
+    document.getElementById('currentCaption').textContent = request.text;
+  }
 });

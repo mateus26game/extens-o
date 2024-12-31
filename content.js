@@ -1,131 +1,65 @@
 
-let recognition = null;
-let transcricaoContainer = null;
-
-function criarContainerLegendas() {
-  if (!transcricaoContainer) {
-    transcricaoContainer = document.createElement('div');
-    transcricaoContainer.style.cssText = `
-      position: fixed;
-      bottom: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      z-index: 10000;
-      max-width: 80%;
-      text-align: center;
-      font-size: 18px;
-      display: none;
-      transition: opacity 0.3s ease;
-      line-height: 1.4;
-    `;
-    document.body.appendChild(transcricaoContainer);
-  }
+function findCaptions() {
+  return document.querySelectorAll([
+    '.captions',
+    '.vjs-text-track-display',
+    '.ytp-caption-window-container',
+    '[class*="caption"]',
+    '[class*="subtitle"]'
+  ].join(','));
 }
 
-function iniciarReconhecimento() {
-  if (!recognition) {
-    criarContainerLegendas();
-    recognition = new webkitSpeechRecognition();
-    
-    // Configurações otimizadas
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'pt-BR';
-    recognition.maxAlternatives = 1;  // Reduz processamento de alternativas
-    
-    let ultimaTranscricao = '';
-    let timeoutId = null;
+function applyCaptionStyles(element, styles) {
+  element.style.color = styles.textColor;
+  element.style.fontSize = styles.fontSize + 'px';
+  element.style.backgroundColor = styles.bgColor;
+  element.style.opacity = styles.bgOpacity / 100;
+  
+  // Envia o texto da legenda para o popup
+  chrome.runtime.sendMessage({
+    action: 'updateCaptionText',
+    text: element.textContent
+  });
+}
 
-    recognition.onstart = () => {
-      console.log('Reconhecimento iniciado');
-      transcricaoContainer.style.display = 'block';
-    };
+let captionStyles = {
+  textColor: '#ffffff',
+  fontSize: 16,
+  bgColor: '#000000',
+  bgOpacity: 70
+};
 
-    recognition.onresult = (event) => {
-      let transcricaoAtual = '';
-      
-      // Otimização do loop de resultados
-      const resultado = event.results[event.results.length - 1];
-      if (resultado) {
-        transcricaoAtual = resultado[0].transcript.trim();
-        
-        // Só atualiza se o texto mudou
-        if (transcricaoAtual !== ultimaTranscricao) {
-          ultimaTranscricao = transcricaoAtual;
-          
-          // Limpa timeout anterior
-          if (timeoutId) clearTimeout(timeoutId);
-          
-          // Atualiza o container
-          if (transcricaoContainer) {
-            transcricaoContainer.textContent = transcricaoAtual;
-            transcricaoContainer.style.opacity = '1';
-            
-            // Remove texto após 3 segundos de silêncio
-            timeoutId = setTimeout(() => {
-              transcricaoContainer.style.opacity = '0';
-            }, 3000);
-          }
+chrome.runtime.onMessage.addListener((request) => {
+  if (request.action === 'updateStyle') {
+    captionStyles[request.control] = request.value;
+    const captions = findCaptions();
+    captions.forEach(caption => applyCaptionStyles(caption, captionStyles));
+  }
+});
+
+const observer = new MutationObserver((mutations) => {
+  const captions = findCaptions();
+  captions.forEach(caption => {
+    applyCaptionStyles(caption, captionStyles);
+    // Observa mudanças no texto da legenda
+    new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'characterData' || mutation.type === 'childList') {
+          chrome.runtime.sendMessage({
+            action: 'updateCaptionText',
+            text: caption.textContent
+          });
         }
-      }
-    };
+      });
+    }).observe(caption, {
+      characterData: true,
+      childList: true,
+      subtree: true
+    });
+  });
+});
 
-    recognition.onerror = (event) => {
-      console.error('Erro no reconhecimento:', event.error);
-      // Reinicia em caso de erro
-      if (recognition) {
-        setTimeout(() => {
-          try {
-            recognition.start();
-          } catch (e) {
-            console.error('Erro ao reiniciar:', e);
-          }
-        }, 1000);
-      }
-    };
-
-    recognition.onend = () => {
-      // Reinicia com um pequeno delay para evitar sobrecarga
-      if (recognition) {
-        setTimeout(() => {
-          try {
-            recognition.start();
-          } catch (e) {
-            console.error('Erro ao reiniciar:', e);
-          }
-        }, 500);
-      }
-    };
-
-    try {
-      recognition.start();
-    } catch (e) {
-      console.error('Erro ao iniciar:', e);
-    }
-  }
-}
-
-function pararReconhecimento() {
-  if (recognition) {
-    recognition.stop();
-    recognition = null;
-    if (transcricaoContainer) {
-      transcricaoContainer.style.opacity = '0';
-      setTimeout(() => {
-        transcricaoContainer.style.display = 'none';
-      }, 300);
-    }
-  }
-}
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "iniciarTranscricao") {
-    iniciarReconhecimento();
-  } else if (message.action === "pararTranscricao") {
-    pararReconhecimento();
-  }
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
 });

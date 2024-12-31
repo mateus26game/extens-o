@@ -2,27 +2,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
   <style>
-    body {
-      width: 200px;
-      padding: 10px;
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-    }
-    button {
-      padding: 8px 16px;
-      cursor: pointer;
-      flex: 1;
+    body { width: 300px; padding: 10px; }
+    .control { margin: 10px 0; }
+    label { display: block; margin-bottom: 5px; }
+    #currentCaption {
+      word-wrap: break-word;
+      margin: 10px 0;
+      padding: 5px;
+      border: 1px solid #ccc;
+      min-height: 50px;
     }
   </style>
 </head>
 <body>
-  <div class="controls">
-    <button id="iniciar">Iniciar Legendas</button>
-    <button id="parar">Parar</button>
+  <h1 id="currentCaption">Aguardando legenda...</h1>
+  <div class="control">
+    <label>Cor do Texto:</label>
+    <input type="color" id="textColor" value="#ffffff">
+  </div>
+  <div class="control">
+    <label>Tamanho do Texto:</label>
+    <input type="range" id="fontSize" min="12" max="48" value="16">
+  </div>
+  <div class="control">
+    <label>Cor do Fundo:</label>
+    <input type="color" id="bgColor" value="#000000">
+  </div>
+  <div class="control">
+    <label>Transparência do Fundo:</label>
+    <input type="range" id="bgOpacity" min="0" max="100" value="70">
   </div>
   <script src="popup.js"></script>
 </body>
