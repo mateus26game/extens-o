@@ -3,35 +3,82 @@
 <html>
 <head>
   <style>
-    body { width: 300px; padding: 10px; }
-    .control { margin: 10px 0; }
-    label { display: block; margin-bottom: 5px; }
-    #currentCaption {
-      word-wrap: break-word;
+    body {
+      width: 350px;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
       margin: 10px 0;
-      padding: 5px;
-      border: 1px solid #ccc;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #currentCaption {
+      font-size: 16px;
+      margin: 10px 0;
+      padding: 10px;
+      background: rgb(241, 241, 241);
+      color: rgb(48, 48, 48);
+      border-radius: 6px;
       min-height: 50px;
+    }
+    .control {
+      margin: 15px 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: bold;
+    }
+    select {
+      width: 100%;
+      padding: 5px;
+      margin: 5px 0;
+    }
+    .toggle-button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      margin: 5px 0;
+    }
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #speedValue {
+      min-width: 45px;
+      text-align: center;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1 id="currentCaption">Aguardando legenda...</h1>
-  <div class="control">
-    <label>Cor do Texto:</label>
-    <input type="color" id="textColor" value="#ffffff">
+  <div class="card">
+    <h1 id="currentCaption">Aguardando legenda...</h1>
   </div>
-  <div class="control">
-    <label>Tamanho do Texto:</label>
-    <input type="range" id="fontSize" min="12" max="48" value="16">
-  </div>
-  <div class="control">
-    <label>Cor do Fundo:</label>
-    <input type="color" id="bgColor" value="#000000">
-  </div>
-  <div class="control">
-    <label>Transparência do Fundo:</label>
-    <input type="range" id="bgOpacity" min="0" max="100" value="70">
+
+  <div class="card">
+    <button id="toggleNarrator" class="toggle-button">Ativar Narrador</button>
+    <div class="control">
+      <label>Voz:</label>
+      <select id="voice"></select>
+    </div>
+    <div class="control">
+      <label>Velocidade:</label>
+      <div class="speed-control">
+        <input type="range" id="speed" min="0.5" max="3" step="0.1" value="1">
+        <span id="speedValue">1x</span>
+      </div>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>
